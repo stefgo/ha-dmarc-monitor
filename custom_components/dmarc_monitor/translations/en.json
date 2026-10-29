@@ -1,0 +1,120 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Stalwart server",
+        "description": "The Stalwart mail server (0.16 or newer) that receives the DMARC and TLS reports. Create an API key there with the permissions sysDmarcExternalReportGet, sysDmarcExternalReportQuery, sysTlsExternalReportGet and sysTlsExternalReportQuery.",
+        "data": {
+          "url": "URL",
+          "api_key": "API key",
+          "verify_ssl": "Verify the TLS certificate"
+        },
+        "data_description": {
+          "url": "Address of the web interface, e.g. https://mail.example.org"
+        }
+      },
+      "domain": {
+        "title": "Monitored domain",
+        "description": "The values below were taken from the newest report where possible.",
+        "data": {
+          "domain": "Domain",
+          "own_ips": "Own sending servers",
+          "channel": "Log Notifier channel",
+          "expected_p": "Expected policy (p)",
+          "expected_sp": "Expected subdomain policy (sp)"
+        },
+        "data_description": {
+          "own_ips": "Addresses or ranges (CIDR) that legitimately send mail for the domain, separated by commas.",
+          "channel": "Problems are posted there."
+        }
+      },
+      "reauth_confirm": {
+        "title": "New API key",
+        "description": "Stalwart at {url} rejected the API key for {domain}.",
+        "data": {
+          "api_key": "API key"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Stalwart is not reachable or did not answer with JMAP. Is it version 0.16 or newer?",
+      "invalid_auth": "The API key was rejected or lacks one of the four permissions.",
+      "invalid_ips": "Not a valid address or range.",
+      "invalid_domain": "Not a valid domain.",
+      "unknown": "Unexpected error, see the log."
+    },
+    "abort": {
+      "already_configured": "This domain is already monitored.",
+      "reauth_successful": "The API key was updated."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "DMARC Monitor options",
+        "data": {
+          "own_ips": "Own sending servers",
+          "channel": "Log Notifier channel",
+          "expected_p": "Expected policy (p)",
+          "expected_sp": "Expected subdomain policy (sp)",
+          "scan_interval": "Fetch interval",
+          "dkim_exceptions": "DKIM exceptions",
+          "foreign_min_count": "Foreign sources: report from this many messages",
+          "watched_reporters": "Reporters expected to send reports",
+          "missing_days": "Report missing after (days)",
+          "resolve_days": "Resolved after (days without occurrence)",
+          "notify_no_tls_policy": "Hint once about a missing MTA-STS/DANE policy"
+        },
+        "data_description": {
+          "own_ips": "Addresses or ranges (CIDR), separated by commas.",
+          "dkim_exceptions": "One per line: reporter and selector pattern, e.g. \"google.com *ed25519*\". Google does not verify Ed25519 signatures.",
+          "watched_reporters": "Separated by commas, e.g. google.com. Leave empty to turn the check off."
+        }
+      }
+    },
+    "error": {
+      "invalid_ips": "Not a valid address or range."
+    }
+  },
+  "entity": {
+    "binary_sensor": {
+      "mail_problem": {
+        "name": "Mail problem"
+      }
+    },
+    "sensor": {
+      "dmarc_pass_rate": {
+        "name": "DMARC pass rate"
+      },
+      "dmarc_messages": {
+        "name": "DMARC messages"
+      },
+      "tls_failed_sessions": {
+        "name": "TLS failed sessions"
+      },
+      "last_report": {
+        "name": "Last report"
+      },
+      "api_status": {
+        "name": "API status",
+        "state": {
+          "ok": "OK",
+          "auth_failed": "API key rejected",
+          "cannot_connect": "Not reachable"
+        }
+      }
+    }
+  },
+  "issues": {
+    "delivery_failed": {
+      "title": "DMARC Monitor cannot reach Log Notifier",
+      "description": "{count} message(s) about {domain} could not be posted to the Log Notifier channel \"{channel}\": {reason}\n\nCheck that Log Notifier is set up and that the channel exists, or pick another channel in the options of DMARC Monitor. The messages are sent as soon as that works."
+    }
+  },
+  "services": {
+    "refresh": {
+      "name": "Refresh",
+      "description": "Fetches the reports from Stalwart now instead of at the next interval."
+    }
+  }
+}
