@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.venv/
+.DS_Store
+
+# Contains the SSH target of a private instance and the Stalwart API key used
+# to record fixtures — builddeploy.sh itself is tracked and reads it.
+.env
+
+# Home-Assistant test environment, separate from .venv on purpose.
+.venv-ha/
+
+# Raw answers of a real Stalwart server (scripts/record_fixtures.py).
+.recorded/

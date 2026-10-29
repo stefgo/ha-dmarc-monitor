@@ -1,0 +1,59 @@
+name: Create Release
+
+# A release is an action, not a side effect of pushing a tag. It is started by
+# hand from the Actions tab -- on main for a release, on dev for a beta.
+# Versions and tags are never created by hand.
+#
+# What a release is, how its version is found and how its notes are put
+# together lives in https://github.com/stefgo/release-workflows. This file
+# offers the inputs and says what is particular here: the checks, the file that
+# carries the version, and the zip HACS installs.
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run -- shows the next version and its notes, changes nothing"
+        type: boolean
+        default: true
+      bump:
+        description: "Version step"
+        type: choice
+        options: [auto, patch, minor, major]
+        default: auto
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    uses: stefgo/release-workflows/.github/workflows/preflight.yml@v1
+    permissions:
+      contents: read
+
+  checks:
+    needs: preflight
+    uses: ./.github/workflows/test.yml
+
+  release:
+    needs: checks
+    uses: stefgo/release-workflows/.github/workflows/release.yml@v1
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
+    with:
+      dry_run: ${{ inputs.dry_run }}
+      bump: ${{ inputs.bump }}
+      breaking: minor
+      release_name: "DMARC Monitor {{version}}"
+      version_files: |
+        custom_components/dmarc_monitor/manifest.json
+      # HACS extracts the zip straight into custom_components/dmarc_monitor,
+      # so manifest.json has to sit at the root of the archive.
+      build_command: |
+        (cd custom_components/dmarc_monitor && zip -r "$OLDPWD/dmarc_monitor.zip" . -x '*__pycache__*' '*.pyc')
+      release_assets: dmarc_monitor.zip
