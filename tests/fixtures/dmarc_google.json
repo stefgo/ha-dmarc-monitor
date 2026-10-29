@@ -1,0 +1,55 @@
+{
+  "id": "d1",
+  "from": {
+    "email": "noreply-dmarc-support@google.com"
+  },
+  "subject": "Report domain: example.org Submitter: google.com Report-ID: 1000000000000000001",
+  "receivedAt": "2026-10-27T08:55:12Z",
+  "expiresAt": "2026-11-26T08:55:12Z",
+  "report": {
+    "version": 1.0,
+    "orgName": "google.com",
+    "email": "noreply-dmarc-support@google.com",
+    "extraContactInfo": "https://support.google.com/a/answer/2466580",
+    "reportId": "1000000000000000001",
+    "dateRangeStart": "2026-10-26T00:00:00Z",
+    "dateRangeEnd": "2026-10-26T23:59:59Z",
+    "policyDomain": "example.org",
+    "policyAdkim": "relaxed",
+    "policyAspf": "relaxed",
+    "policyDisposition": "reject",
+    "policySubdomainDisposition": "reject",
+    "policyTestingMode": false,
+    "policyNp": "reject",
+    "records": [
+      {
+        "sourceIp": "192.0.2.10",
+        "count": 1,
+        "evaluatedDisposition": "none",
+        "evaluatedDkim": "pass",
+        "evaluatedSpf": "pass",
+        "envelopeFrom": "",
+        "headerFrom": "example.org",
+        "dkimResults": [
+          {
+            "domain": "example.org",
+            "selector": "v1-ed25519-20261020",
+            "result": "fail"
+          },
+          {
+            "domain": "example.org",
+            "selector": "v1-rsa-20261020",
+            "result": "pass"
+          }
+        ],
+        "spfResults": [
+          {
+            "domain": "example.org",
+            "scope": "mailFrom",
+            "result": "pass"
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "id": "d2",
+  "from": {
+    "email": "no-reply@us-1.mimecastreport.com"
+  },
+  "subject": "Report Domain: example.org Submitter: Mimecast",
+  "receivedAt": "2026-10-28T12:11:40Z",
+  "expiresAt": "2026-11-27T12:11:40Z",
+  "report": {
+    "orgName": "Mimecast",
+    "email": "no-reply@us-1.mimecastreport.com",
+    "extraContactInfo": "https://community.mimecast.com/s/knowledge",
+    "reportId": "2000000000000000000000000000000000000000000000000000000000000002",
+    "dateRangeStart": "2026-10-27T00:00:00Z",
+    "dateRangeEnd": "2026-10-27T23:59:59Z",
+    "policyDomain": "example.org",
+    "policyAdkim": "relaxed",
+    "policyAspf": "relaxed",
+    "policyDisposition": "reject",
+    "policySubdomainDisposition": "reject",
+    "policyTestingMode": false,
+    "records": [
+      {
+        "sourceIp": "192.0.2.10",
+        "count": 2,
+        "evaluatedDisposition": "none",
+        "evaluatedDkim": "pass",
+        "evaluatedSpf": "pass",
+        "envelopeFrom": "",
+        "headerFrom": "example.org",
+        "dkimResults": [
+          {
+            "domain": "example.org",
+            "selector": "v1-ed25519-20261020",
+            "result": "pass"
+          },
+          {
+            "domain": "example.org",
+            "selector": "v1-rsa-20261020",
+            "result": "pass"
+          }
+        ],
+        "spfResults": [
+          {
+            "domain": "example.org",
+            "scope": "mailFrom",
+            "result": "pass"
+          }
+        ]
+      }
+    ]
+  }
+}
