@@ -11,7 +11,7 @@ from pytest_homeassistant_custom_component.test_util.aiohttp import (
     AiohttpClientMockResponse,
 )
 
-from custom_components.dmarc_monitor.const import OBJECT_DMARC
+from custom_components.dmarc_monitor.const import OBJECT_DMARC, OBJECT_TLS
 from custom_components.dmarc_monitor.stalwart import (
     StalwartAuthError,
     StalwartClient,
@@ -68,6 +68,49 @@ async def test_without_session_access_jmap_is_used(hass: HomeAssistant, aioclien
         json={"methodResponses": [["x:DmarcExternalReport/query", {"ids": []}, "q"]]},
     )
     assert await client(hass).query_ids(OBJECT_DMARC) == []
+
+
+async def test_validate_checks_query_and_get(hass: HomeAssistant, aioclient_mock):
+    requests = []
+
+    async def jmap(method, url, data):
+        body = json.loads(data) if isinstance(data, (str, bytes)) else data
+        requests.append([call[0] for call in body["methodCalls"]])
+        query, get = body["methodCalls"]
+        return AiohttpClientMockResponse(
+            method,
+            url,
+            json={
+                "methodResponses": [
+                    [query[0], {"ids": []}, query[2]],
+                    [get[0], {"list": [], "notFound": []}, get[2]],
+                ]
+            },
+        )
+
+    aioclient_mock.get(f"{BASE}/.well-known/jmap", status=403)
+    aioclient_mock.post(f"{BASE}/jmap/", side_effect=jmap)
+    await client(hass).async_validate([OBJECT_DMARC, OBJECT_TLS])
+    assert requests == [
+        ["x:DmarcExternalReport/query", "x:DmarcExternalReport/get"],
+        ["x:TlsExternalReport/query", "x:TlsExternalReport/get"],
+    ]
+
+
+async def test_validate_fails_without_get(hass: HomeAssistant, aioclient_mock):
+    """A key that may query but not get is rejected at setup."""
+    aioclient_mock.get(f"{BASE}/.well-known/jmap", status=403)
+    aioclient_mock.post(
+        f"{BASE}/jmap/",
+        json={
+            "methodResponses": [
+                ["x:DmarcExternalReport/query", {"ids": []}, "q"],
+                ["error", {"type": "forbidden"}, "g"],
+            ]
+        },
+    )
+    with pytest.raises(StalwartAuthError):
+        await client(hass).async_validate([OBJECT_DMARC])
 
 
 @pytest.mark.parametrize(

@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Stalwart server",
-        "description": "The Stalwart mail server (0.16 or newer) that receives the DMARC and TLS reports. Create an API key there with the permissions sysDmarcExternalReportGet, sysDmarcExternalReportQuery, sysTlsExternalReportGet and sysTlsExternalReportQuery.",
+        "description": "The Stalwart mail server (0.16 or newer) that receives the DMARC and TLS reports. Create an API key there with the permissions authenticate, sysDmarcExternalReportGet, sysDmarcExternalReportQuery, sysTlsExternalReportGet and sysTlsExternalReportQuery.",
         "data": {
           "url": "URL",
           "api_key": "API key",
@@ -38,7 +38,7 @@
     },
     "error": {
       "cannot_connect": "Stalwart is not reachable or did not answer with JMAP. Is it version 0.16 or newer?",
-      "invalid_auth": "The API key was rejected or lacks one of the four permissions.",
+      "invalid_auth": "The API key was rejected or lacks one of the five permissions.",
       "invalid_ips": "Not a valid address or range.",
       "invalid_domain": "Not a valid domain.",
       "unknown": "Unexpected error, see the log."

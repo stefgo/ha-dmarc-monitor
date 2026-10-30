@@ -3,7 +3,7 @@
     "step": {
       "user": {
         "title": "Stalwart-Server",
-        "description": "Der Stalwart-Mailserver (ab 0.16), der die DMARC- und TLS-Berichte empfängt. Leg dort einen API-Key mit den Rechten sysDmarcExternalReportGet, sysDmarcExternalReportQuery, sysTlsExternalReportGet und sysTlsExternalReportQuery an.",
+        "description": "Der Stalwart-Mailserver (ab 0.16), der die DMARC- und TLS-Berichte empfängt. Leg dort einen API-Key mit den Rechten authenticate, sysDmarcExternalReportGet, sysDmarcExternalReportQuery, sysTlsExternalReportGet und sysTlsExternalReportQuery an.",
         "data": {
           "url": "URL",
           "api_key": "API-Key",
@@ -38,7 +38,7 @@
     },
     "error": {
       "cannot_connect": "Stalwart ist nicht erreichbar oder antwortet nicht per JMAP. Ist es Version 0.16 oder neuer?",
-      "invalid_auth": "Der API-Key wurde abgelehnt oder ihm fehlt eines der vier Rechte.",
+      "invalid_auth": "Der API-Key wurde abgelehnt oder ihm fehlt eines der fünf Rechte.",
       "invalid_ips": "Keine gültige Adresse bzw. kein gültiger Bereich.",
       "invalid_domain": "Keine gültige Domain.",
       "unknown": "Unerwarteter Fehler, siehe Log."

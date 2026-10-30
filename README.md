@@ -68,8 +68,12 @@ reports at all is no evidence that it went away.
    and the address in `_smtp._tls` have to match one of them. The reports then
    show up under Management → Reports → Inbox.
 2. **API key.** Create one with exactly these permissions:
+   `authenticate` (*Sign in to the server*),
    `sysDmarcExternalReportGet`, `sysDmarcExternalReportQuery`,
    `sysTlsExternalReportGet`, `sysTlsExternalReportQuery`.
+   If the key replaces the permissions of its account, the account has to hold
+   them as well — a key only gets the listed permissions its account also has.
+   Setup checks all of them and refuses a key that lacks one.
 3. Optional: turn off *inbound report forwarding* so the reports no longer land
    in the mailbox as well.
 

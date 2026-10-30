@@ -179,8 +179,16 @@ class StalwartClient:
         return objects
 
     async def async_validate(self, object_types: Iterable[str]) -> None:
-        """Prove that the key may query every object type."""
+        """Prove that the key may query and get every object type.
+
+        Stalwart checks the permission of ``/get`` even for an empty id list,
+        so a key that may only query is caught here rather than on the first
+        fetch.
+        """
         for object_type in object_types:
             await self._call(
-                [[f"{object_type}/query", {"position": 0, "limit": 1}, "v"]]
+                [
+                    [f"{object_type}/query", {"position": 0, "limit": 1}, "q"],
+                    [f"{object_type}/get", {"ids": []}, "g"],
+                ]
             )

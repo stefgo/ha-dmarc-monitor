@@ -27,3 +27,8 @@ something is wrong — and again when it is fixed:
 Google's "fail" for Ed25519 DKIM signatures is excepted by default. Entities
 per domain show the open problems, the DMARC pass rate, the message and TLS
 counts of the last seven days and the time of the last report.
+
+The Stalwart API key needs five permissions: `authenticate`,
+`sysDmarcExternalReportGet`, `sysDmarcExternalReportQuery`,
+`sysTlsExternalReportGet` and `sysTlsExternalReportQuery`. Setup checks
+that the key may both query and fetch the reports.
