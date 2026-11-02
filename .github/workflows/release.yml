@@ -49,7 +49,6 @@ jobs:
       dry_run: ${{ inputs.dry_run }}
       bump: ${{ inputs.bump }}
       breaking: minor
-      release_name: "DMARC Monitor {{version}}"
       version_files: |
         custom_components/dmarc_monitor/manifest.json
       # HACS extracts the zip straight into custom_components/dmarc_monitor,
