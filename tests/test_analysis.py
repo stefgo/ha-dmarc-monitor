@@ -5,7 +5,7 @@ from __future__ import annotations
 import importlib
 from datetime import UTC, datetime
 
-from conftest import PACKAGE, fixture
+from conftest import PACKAGE, add, fixture
 
 analysis = importlib.import_module(f"{PACKAGE}.analysis")
 parse = importlib.import_module(f"{PACKAGE}.parse")
@@ -67,7 +67,7 @@ def test_without_the_exception_google_raises_d3():
 
 def test_the_exception_survives_key_rotation():
     def rotate(report):
-        for sig in report["records"][0]["dkimResults"]:
+        for sig in report["records"]["0"]["dkimResults"].values():
             sig["selector"] = sig["selector"].replace("20261020", "20270115")
 
     assert not rules(run([dmarc(edit=rotate)]))
@@ -75,7 +75,7 @@ def test_the_exception_survives_key_rotation():
 
 def test_the_exception_does_not_cover_other_reporters():
     def ed_fails(report):
-        report["records"][0]["dkimResults"][0]["result"] = "fail"
+        report["records"]["0"]["dkimResults"]["0"]["result"] = "fail"
 
     found = rules(run([dmarc("dmarc_mimecast", edit=ed_fails)]))
     assert "D3:dkim:mimecast:v1-ed25519-20261020" in found
@@ -83,7 +83,7 @@ def test_the_exception_does_not_cover_other_reporters():
 
 def test_d1_own_server_fails_dmarc():
     def broken(report):
-        record = report["records"][0]
+        record = report["records"]["0"]
         record["evaluatedDkim"] = "fail"
         record["evaluatedSpf"] = "fail"
 
@@ -94,7 +94,8 @@ def test_d1_own_server_fails_dmarc():
 
 def test_d2_foreign_source_fails_dmarc():
     def spoofed(report):
-        report["records"].append(
+        add(
+            report["records"],
             {
                 "sourceIp": FOREIGN_IP,
                 "count": 4,
@@ -103,7 +104,7 @@ def test_d2_foreign_source_fails_dmarc():
                 "evaluatedSpf": "fail",
                 "headerFrom": "example.org",
                 "envelopeFrom": "",
-            }
+            },
         )
 
     finding = rules(run([dmarc(edit=spoofed)]))[f"D2:{FOREIGN_IP}"]
@@ -116,7 +117,8 @@ def test_forwarded_mail_is_no_problem():
     """SPF fails at the forwarder, DKIM survives: DMARC passes."""
 
     def forwarded(report):
-        report["records"].append(
+        add(
+            report["records"],
             {
                 "sourceIp": FOREIGN_IP,
                 "count": 2,
@@ -128,7 +130,7 @@ def test_forwarded_mail_is_no_problem():
                 "spfResults": [
                     {"domain": "forwarder.test", "scope": "mailFrom", "result": "fail"}
                 ],
-            }
+            },
         )
 
     assert not rules(run([dmarc(edit=forwarded)]))
@@ -136,7 +138,8 @@ def test_forwarded_mail_is_no_problem():
 
 def test_a_mailing_list_override_is_not_spoofing():
     def listed(report):
-        report["records"].append(
+        add(
+            report["records"],
             {
                 "sourceIp": FOREIGN_IP,
                 "count": 1,
@@ -146,7 +149,7 @@ def test_a_mailing_list_override_is_not_spoofing():
                 "headerFrom": "example.org",
                 "envelopeFrom": "",
                 "policyOverrideReasons": [{"overrideType": "MailingList"}],
-            }
+            },
         )
 
     assert not rules(run([dmarc(edit=listed)]))
@@ -154,7 +157,7 @@ def test_a_mailing_list_override_is_not_spoofing():
 
 def test_d3_spf_fails_for_own_server_but_not_for_helo():
     def spf_fail(report):
-        report["records"][0]["spfResults"] = [
+        report["records"]["0"]["spfResults"] = [
             {"domain": "mail.example.org", "scope": "helo", "result": "none"},
             {"domain": "example.org", "scope": "mailFrom", "result": "softFail"},
         ]
@@ -184,7 +187,7 @@ def test_d4_follows_the_expected_policy():
 
 def test_t1_failed_sessions():
     def failing(report):
-        report["policies"][0].update(
+        report["policies"]["0"].update(
             policyType="sts",
             totalFailedSessions=5,
             failureDetails=[
@@ -219,8 +222,8 @@ def test_r1_watched_reporter_goes_quiet():
 def test_reports_for_other_domains_are_ignored():
     def other(report):
         report["policyDomain"] = "other.test"
-        report["records"][0]["evaluatedDkim"] = "fail"
-        report["records"][0]["evaluatedSpf"] = "fail"
+        report["records"]["0"]["evaluatedDkim"] = "fail"
+        report["records"]["0"]["evaluatedSpf"] = "fail"
 
     result = run([dmarc(edit=other)], watched_reporters=())
     assert not result.findings

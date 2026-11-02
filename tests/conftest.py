@@ -35,4 +35,9 @@ def fixture(name: str) -> dict:
     return copy.deepcopy(data)
 
 
+def add(entries: dict, item: object) -> None:
+    """Append to a list the way Stalwart sends it: an object keyed by index."""
+    entries[str(len(entries))] = item
+
+
 register_package()

@@ -10,14 +10,15 @@ from homeassistant.helpers import issue_registry as ir
 
 from custom_components.dmarc_monitor.const import DOMAIN, OBJECT_DMARC, OBJECT_TLS
 
-from .conftest import load
+from .conftest import add, load
 
 
 def spoofed_report():
     report = load("dmarc_google")
     report["id"] = "d3"
     report["report"]["reportId"] = "spoof"
-    report["report"]["records"].append(
+    add(
+        report["report"]["records"],
         {
             "sourceIp": "198.51.100.7",
             "count": 4,
@@ -26,7 +27,7 @@ def spoofed_report():
             "evaluatedSpf": "fail",
             "headerFrom": "example.org",
             "envelopeFrom": "",
-        }
+        },
     )
     return report
 
@@ -110,8 +111,8 @@ async def test_reports_of_other_domains_are_ignored(
 ):
     other = copy.deepcopy(stalwart.objects[OBJECT_TLS]["t1"])
     other["id"] = "t2"
-    other["report"]["policies"][0]["policyDomain"] = "other.test"
-    other["report"]["policies"][0]["totalFailedSessions"] = 9
+    other["report"]["policies"]["0"]["policyDomain"] = "other.test"
+    other["report"]["policies"]["0"]["totalFailedSessions"] = 9
     stalwart.add(OBJECT_TLS, other)
     assert await hass.config_entries.async_setup(config_entry.entry_id)
     await hass.async_block_till_done()

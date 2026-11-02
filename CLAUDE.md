@@ -55,6 +55,11 @@ there.
 - `parse.py` is lenient: an enum is compared through `norm()` (lower case,
   letters and digits only), so `noPolicyFound` and `no-policy-found` match. A
   report without its core fields raises `ParseError` and is skipped.
+- Stalwart sends JSON lists as objects keyed by index (`{"0": …, "1": …}`);
+  `_list()` turns them back into lists and also accepts plain arrays. The
+  start of a DMARC period is `dateRangeBegin`, of a TLS period
+  `dateRangeStart`. The fixtures follow the real shape — check new ones
+  against `scripts/record_fixtures.py` output, not the JMAP docs.
 - `analysis.evaluate()` is a pure function of reports, `RuleConfig` and `now`.
   It returns *findings* (keyed, merged across reports), statistics and the end
   of the newest report per kind.

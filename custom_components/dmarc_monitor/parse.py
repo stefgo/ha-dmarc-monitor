@@ -9,6 +9,7 @@ field, not the whole report.
 from __future__ import annotations
 
 import re
+import sys
 from collections.abc import Mapping
 from datetime import UTC, datetime
 from typing import Any
@@ -90,7 +91,22 @@ def _int(value: Any) -> int:
 
 
 def _list(value: Any) -> list[Any]:
-    return value if isinstance(value, list) else []
+    """A JSON list, which Stalwart sends as an object keyed by index.
+
+    ``{"0": a, "1": b}`` becomes ``[a, b]``, in index order; a plain array is
+    taken as it is.
+    """
+    if isinstance(value, list):
+        return value
+    if isinstance(value, Mapping):
+        return [value[key] for key in sorted(value, key=_index)]
+    return []
+
+
+def _index(key: Any) -> tuple[int, str]:
+    """Sort key: numeric index first ("2" before "10"), anything else after."""
+    text = str(key)
+    return (int(text), "") if text.isdigit() else (sys.maxsize, text)
 
 
 def _address(value: Any) -> str:
@@ -100,11 +116,13 @@ def _address(value: Any) -> str:
     return _text(value)
 
 
-def _required_datetime(data: Mapping[str, Any], key: str) -> datetime:
-    parsed = parse_datetime(data.get(key))
-    if parsed is None:
-        raise ParseError(f"{key} is missing or not a date")
-    return parsed
+def _required_datetime(data: Mapping[str, Any], *keys: str) -> datetime:
+    """The first of ``keys`` that holds a date."""
+    for key in keys:
+        parsed = parse_datetime(data.get(key))
+        if parsed is not None:
+            return parsed
+    raise ParseError(f"{' / '.join(keys)} is missing or not a date")
 
 
 def _dmarc_record(data: Mapping[str, Any]) -> DmarcRecord:
@@ -149,7 +167,9 @@ def parse_dmarc_report(obj: Mapping[str, Any]) -> DmarcReport:
     domain = _text(report.get("policyDomain")).lower()
     if not domain:
         raise ParseError("policyDomain is missing")
-    begin = _required_datetime(report, "dateRangeStart")
+    # Stalwart names the start of a DMARC period dateRangeBegin, of a TLS
+    # period dateRangeStart.
+    begin = _required_datetime(report, "dateRangeBegin", "dateRangeStart")
     end = _required_datetime(report, "dateRangeEnd")
     return DmarcReport(
         id=str(obj.get("id", "")),

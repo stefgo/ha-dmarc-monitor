@@ -26,6 +26,34 @@ def test_google_dmarc_report():
     assert record.spf_results[0].scope == "mailfrom"
 
 
+def test_lists_keyed_by_index_keep_their_order():
+    """Stalwart sends JSON lists as objects: {"0": …, "1": …}."""
+    obj = fixture("dmarc_google")
+    signatures = obj["report"]["records"]["0"]["dkimResults"]
+    for i in range(2, 11):
+        signatures[str(i)] = {"domain": "example.org", "selector": f"s{i}"}
+    (record,) = parse.parse_dmarc_report(obj).records
+
+    selectors = [r.selector for r in record.dkim_results]
+    assert selectors[:2] == ["v1-ed25519-20261020", "v1-rsa-20261020"]
+    assert selectors[-2:] == ["s9", "s10"]
+
+
+def test_plain_arrays_are_read_as_well():
+    obj = fixture("dmarc_google")
+    report = obj["report"]
+    report["records"] = list(report["records"].values())
+    record = report["records"][0]
+    record["dkimResults"] = list(record["dkimResults"].values())
+    record["spfResults"] = list(record["spfResults"].values())
+    report["dateRangeStart"] = report.pop("dateRangeBegin")
+
+    (parsed,) = parse.parse_dmarc_report(obj).records
+    assert parsed.dmarc_pass
+    assert len(parsed.dkim_results) == 2
+    assert parsed.spf_results[0].result == "pass"
+
+
 def test_tls_report_maps_policy_type():
     report = parse.parse_tls_report(fixture("tls_google"))
 
@@ -37,7 +65,7 @@ def test_tls_report_maps_policy_type():
 
 def test_tls_failure_names_follow_rfc_8460():
     obj = fixture("tls_google")
-    obj["report"]["policies"][0].update(
+    obj["report"]["policies"]["0"].update(
         totalFailedSessions=3,
         failureDetails=[
             {
@@ -62,14 +90,14 @@ def test_dates_in_any_common_form(value):
 
 def test_a_report_without_dates_is_refused():
     obj = fixture("dmarc_google")
-    del obj["report"]["dateRangeStart"]
+    del obj["report"]["dateRangeBegin"]
     with pytest.raises(parse.ParseError):
         parse.parse_dmarc_report(obj)
 
 
 def test_missing_optional_fields_cost_nothing():
     obj = fixture("dmarc_google")
-    record = obj["report"]["records"][0]
+    record = obj["report"]["records"]["0"]
     for key in ("dkimResults", "spfResults", "count"):
         del record[key]
     (parsed,) = parse.parse_dmarc_report(obj).records

@@ -38,6 +38,11 @@ def load(name: str) -> dict[str, Any]:
     return json.loads((FIXTURES / f"{name}.json").read_text(encoding="utf-8"))
 
 
+def add(entries: dict[str, Any], item: Any) -> None:
+    """Append to a list the way Stalwart sends it: an object keyed by index."""
+    entries[str(len(entries))] = item
+
+
 class FakeStalwart:
     """Stands in for StalwartClient; the objects can be changed per test."""
 
