@@ -10,7 +10,7 @@
           "verify_ssl": "TLS-Zertifikat prüfen"
         },
         "data_description": {
-          "url": "Adresse der Weboberfläche, z. B. https://mail.example.org"
+          "url": "Adresse der Weboberfläche, z. B. {example_url}"
         }
       },
       "domain": {

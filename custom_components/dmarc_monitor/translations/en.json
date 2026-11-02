@@ -10,7 +10,7 @@
           "verify_ssl": "Verify the TLS certificate"
         },
         "data_description": {
-          "url": "Address of the web interface, e.g. https://mail.example.org"
+          "url": "Address of the web interface, e.g. {example_url}"
         }
       },
       "domain": {

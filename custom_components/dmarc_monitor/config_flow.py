@@ -255,6 +255,8 @@ class DmarcMonitorConfigFlow(ConfigFlow, domain=DOMAIN):
             step_id="user",
             data_schema=self.add_suggested_values_to_schema(schema, suggested),
             errors=errors,
+            # hassfest rejects URLs inside translation strings.
+            description_placeholders={"example_url": "https://mail.example.org"},
         )
 
     async def async_step_domain(
