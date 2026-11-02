@@ -1,1 +1,37 @@
 # Changelog
+
+## 1.0.0 (2026-11-02)
+
+### First release
+
+DMARC Monitor reads the DMARC aggregate and SMTP TLS reports your Stalwart
+mail server (0.16 or newer) has received and posts to Log Notifier when
+something is wrong — and again when it is fixed:
+
+- DMARC failing for your own mail server, or a single DKIM signature or SPF
+  failing while DMARC still passes
+- foreign sources sending as your domain
+- a published policy that differs from the expected one
+- failed TLS sessions towards your MX, and once a hint about a missing
+  MTA-STS or DANE policy
+- a reporter such as Google that stopped sending reports
+
+Google's "fail" for Ed25519 DKIM signatures is excepted by default. Entities
+per domain show the open problems, the DMARC pass rate, the message and TLS
+counts of the last seven days and the time of the last report.
+
+The Stalwart API key needs five permissions: `authenticate`,
+`sysDmarcExternalReportGet`, `sysDmarcExternalReportQuery`,
+`sysTlsExternalReportGet` and `sysTlsExternalReportQuery`. Setup checks
+that the key may both query and fetch the reports.
+
+### Features
+
+* Evaluate DMARC and TLS reports ([29b75d5](https://github.com/stefgo/ha-dmarc-monitor/commit/29b75d5a2321b675449630f22bea0b108834bf6c))
+* Read the reports from Stalwart and post problems to Log Notifier ([1ef8855](https://github.com/stefgo/ha-dmarc-monitor/commit/1ef8855ab8c67675afca51d4a0a2c14517b03ea5))
+
+### Bug Fixes
+
+* Check that the API key may also fetch reports ([c209d89](https://github.com/stefgo/ha-dmarc-monitor/commit/c209d8999e1a5b56489f868bb6eb80876b0e6706))
+* Keep URLs out of the translation strings ([449d802](https://github.com/stefgo/ha-dmarc-monitor/commit/449d802004929b84c9707b795dec58c0f679e0c8))
+* Read the reports in the shape Stalwart really sends ([85c0a50](https://github.com/stefgo/ha-dmarc-monitor/commit/85c0a50d405bced505793d62b074781ed73fcb9e))
