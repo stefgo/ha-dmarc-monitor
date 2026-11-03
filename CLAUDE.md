@@ -15,7 +15,7 @@ that reads the DMARC aggregate and SMTP TLS reports a Stalwart mail server
 # Python tests (no Home Assistant install required)
 python3 -m venv .venv && .venv/bin/pip install -r requirements_test.txt
 .venv/bin/python -m pytest
-.venv/bin/ruff check . && .venv/bin/ruff format --check . && .venv/bin/mypy
+.venv/bin/pre-commit run --all-files && .venv/bin/mypy   # ruff runs as a hook
 
 # The Home-Assistant-dependent tests, in their own environment
 python3 -m venv .venv-ha && .venv-ha/bin/pip install -r requirements_test_ha.txt
@@ -24,6 +24,11 @@ python3 -m venv .venv-ha && .venv-ha/bin/pip install -r requirements_test_ha.txt
 # Record the answers of a real Stalwart server into .recorded/ (git-ignored)
 python3 scripts/record_fixtures.py
 ```
+
+ruff runs through `.pre-commit-config.yaml` (`pre-commit install` once); its
+configuration is in `pyproject.toml`. The hook's `rev` is the only ruff version
+in the project: CI runs `pre-commit run --all-files` instead of installing ruff
+on its own.
 
 `builddeploy.sh` rsyncs the integration to a Home Assistant host; it reads the
 target from `.env`, see `.env.example`.
