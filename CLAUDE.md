@@ -121,3 +121,14 @@ source of the version (`const.INTEGRATION_VERSION` reads it).
 Before every commit, bring `.release/next.md` up to date with what the commit
 changes for a user — in the same commit, below the HTML comment, with `###`
 headings. Commits that change nothing for a user leave it alone.
+
+Dependency updates come from Renovate, run centrally from
+[stefgo/renovate-config](https://github.com/stefgo/renovate-config) (shared
+preset and the runner, daily at noon). Renovate opens its pull requests on
+Mondays — all minor and patch updates in one, each major update in its own,
+because it merges only one pull request per run — and merges them itself,
+squashed, on the first run after every check — Tests and Validate — is green;
+a red one stays open for a human, and so does an update of the Python version
+the workflows run on. Rules particular to this repository would go into
+`.github/renovate.json5`. The commits are typed `ci(deps)` and `chore(deps)`
+and release nothing by themselves.

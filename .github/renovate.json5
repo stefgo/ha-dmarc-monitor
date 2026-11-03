@@ -1,0 +1,9 @@
+// Dependency updates come from Renovate, run centrally from
+// https://github.com/stefgo/renovate-config — that preset sets the schedule,
+// the grouping, the commit types and the merge once every check is green.
+// Rules particular to this repository would go below `extends`; there are
+// none so far.
+{
+  $schema: "https://docs.renovatebot.com/renovate-schema.json",
+  extends: ["github>stefgo/renovate-config"],
+}
