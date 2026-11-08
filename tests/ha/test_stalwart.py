@@ -61,6 +61,24 @@ async def test_session_discovery_query_and_get(hass: HomeAssistant, aioclient_mo
     assert headers["Authorization"] == "Bearer key"
 
 
+async def test_api_url_of_another_host_is_moved_to_base(
+    hass: HomeAssistant, aioclient_mock
+):
+    aioclient_mock.get(
+        f"{BASE}/.well-known/jmap",
+        json={
+            "apiUrl": "https://public.example.org/jmap/",
+            "primaryAccounts": {"urn:stalwart:jmap": "acc1"},
+        },
+    )
+    aioclient_mock.post(
+        f"{BASE}/jmap/",
+        json={"methodResponses": [["x:DmarcExternalReport/query", {"ids": []}, "q"]]},
+    )
+    assert await client(hass).query_ids(OBJECT_DMARC) == []
+    assert str(aioclient_mock.mock_calls[1][1]) == f"{BASE}/jmap/"
+
+
 async def test_without_session_access_jmap_is_used(hass: HomeAssistant, aioclient_mock):
     aioclient_mock.get(f"{BASE}/.well-known/jmap", status=403)
     aioclient_mock.post(

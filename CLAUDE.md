@@ -42,8 +42,10 @@ and parses them and stores them as JMAP objects `x:DmarcExternalReport` and
 `x:TlsExternalReport` (30 days by default). `stalwart.py` reads them with
 `/query` (ids) and `/get` (objects); the JMAP endpoint comes from the session
 resource (`/.well-known/jmap`), falling back to `/jmap/` when a restricted key
-may not read the session. The `accountId` from the session is added in `_call`,
-after discovery.
+may not read the session. Only the path of the session's `apiUrl` counts:
+Stalwart puts its public hostname there, and the calls must go to the
+configured URL (often the internal address). The `accountId` from the session
+is added in `_call`, after discovery.
 
 Stored reports never change, so the coordinator caches parsed reports by id and
 fetches only new ids each cycle; ids that disappear (expired) are dropped.

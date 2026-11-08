@@ -14,6 +14,7 @@ from collections.abc import Iterable
 from typing import Any
 
 import aiohttp
+from yarl import URL
 
 from .const import (
     GET_BATCH_SIZE,
@@ -89,7 +90,7 @@ class StalwartClient:
                     session = await response.json(content_type=None)
                     api_url = session.get("apiUrl")
                     if isinstance(api_url, str) and api_url:
-                        self._api_url = api_url
+                        self._api_url = self._on_base(api_url)
                     accounts = session.get("primaryAccounts") or {}
                     account = accounts.get(JMAP_CAPABILITY_STALWART)
                     if isinstance(account, str) and account:
@@ -100,6 +101,21 @@ class StalwartClient:
             _LOGGER.debug("JMAP session not readable, using /jmap/: %s", err)
         if self._api_url is None:
             self._api_url = f"{self._base}/jmap/"
+
+    def _on_base(self, api_url: str) -> str:
+        """The session's ``apiUrl`` with scheme, host and port of the base URL.
+
+        Stalwart names its public hostname there; following it would route the
+        calls past the URL the user configured, e.g. out through an external
+        proxy instead of the internal address.
+        """
+        api = URL(api_url)
+        base = URL(self._base)
+        if (api.scheme, api.host, api.port) != (base.scheme, base.host, base.port):
+            _LOGGER.debug(
+                "Session names %s as API URL, using the path on %s", api_url, base
+            )
+        return str(base.with_path(api.path or "/jmap/"))
 
     async def _call(self, calls: list[list[Any]]) -> list[list[Any]]:
         """Send method calls; returns the method responses in order."""
