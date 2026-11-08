@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import copy
+from datetime import timedelta
 
 from homeassistant.config_entries import ConfigEntryState
 from homeassistant.core import HomeAssistant
@@ -125,6 +126,23 @@ async def test_refresh_service(hass: HomeAssistant, setup_entry, stalwart):
     stalwart.add(OBJECT_DMARC, spoofed_report())
     await hass.services.async_call(DOMAIN, "refresh", blocking=True)
     assert stalwart.fetched == ["d3"]
+
+
+async def test_unreachable_stalwart_is_retried_after_five_minutes(
+    hass: HomeAssistant, setup_entry, stalwart
+):
+    coordinator = setup_entry.runtime_data
+    assert coordinator.update_interval == timedelta(minutes=60)
+
+    stalwart.unreachable = True
+    await coordinator.async_refresh()
+    assert coordinator.update_interval == timedelta(minutes=5)
+    assert hass.states.get("sensor.example_org_api_status").state == "cannot_connect"
+
+    stalwart.unreachable = False
+    await coordinator.async_refresh()
+    assert coordinator.update_interval == timedelta(minutes=60)
+    assert hass.states.get("sensor.example_org_api_status").state == "ok"
 
 
 async def test_unload(hass: HomeAssistant, setup_entry):

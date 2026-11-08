@@ -54,6 +54,7 @@ from .const import (
     LOGNOTIFIER_SERVICE,
     OBJECT_DMARC,
     OBJECT_TLS,
+    RETRY_INTERVAL,
     STORAGE_VERSION,
 )
 from .messages import build_message
@@ -121,13 +122,17 @@ class DmarcMonitorCoordinator(DataUpdateCoordinator[MonitorData]):
         client: StalwartClient,
     ) -> None:
         options = entry.options
+        self._scan_interval = timedelta(
+            minutes=int(options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL))
+        )
+        self._retry_interval = min(
+            timedelta(minutes=RETRY_INTERVAL), self._scan_interval
+        )
         super().__init__(
             hass,
             _LOGGER,
             name=f"{DOMAIN} {entry.title}",
-            update_interval=timedelta(
-                minutes=int(options.get(CONF_SCAN_INTERVAL, DEFAULT_SCAN_INTERVAL))
-            ),
+            update_interval=self._scan_interval,
             config_entry=entry,
         )
         self.client = client
@@ -214,7 +219,10 @@ class DmarcMonitorCoordinator(DataUpdateCoordinator[MonitorData]):
             raise ConfigEntryAuthFailed(str(err)) from err
         except StalwartConnectionError as err:
             self.api_status, self.api_detail = API_CANNOT_CONNECT, str(err)
+            # Try again soon instead of a full interval later.
+            self.update_interval = self._retry_interval
             raise UpdateFailed(str(err)) from err
+        self.update_interval = self._scan_interval
         self.api_status, self.api_detail = API_OK, None
 
         now = dt_util.utcnow()

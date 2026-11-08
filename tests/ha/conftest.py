@@ -28,7 +28,10 @@ from custom_components.dmarc_monitor.const import (
     OBJECT_DMARC,
     OBJECT_TLS,
 )
-from custom_components.dmarc_monitor.stalwart import StalwartAuthError
+from custom_components.dmarc_monitor.stalwart import (
+    StalwartAuthError,
+    StalwartConnectionError,
+)
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures"
 NOW = "2026-10-29T01:00:00+00:00"
@@ -54,6 +57,7 @@ class FakeStalwart:
             OBJECT_TLS: {o["id"]: o for o in (load("tls_google"),)},
         }
         self.reject = False
+        self.unreachable = False
         self.fetched: list[str] = []
 
     def __call__(self, *_args: Any, **_kwargs: Any) -> FakeStalwart:
@@ -65,6 +69,8 @@ class FakeStalwart:
     async def query_ids(self, object_type: str) -> list[str]:
         if self.reject:
             raise StalwartAuthError("API key rejected (401)")
+        if self.unreachable:
+            raise StalwartConnectionError("HTTP 404: 404 page not found")
         return list(self.objects[object_type])
 
     async def get(self, object_type: str, ids: list[str]) -> list[dict[str, Any]]:

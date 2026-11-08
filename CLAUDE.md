@@ -49,6 +49,9 @@ is added in `_call`, after discovery.
 
 Stored reports never change, so the coordinator caches parsed reports by id and
 fetches only new ids each cycle; ids that disappear (expired) are dropped.
+When Stalwart is unreachable the coordinator sets `update_interval` to
+`RETRY_INTERVAL` (5 min) and back to the fetch interval after the next success;
+HA logs only the first of a series of failures.
 
 ### HA-free core
 

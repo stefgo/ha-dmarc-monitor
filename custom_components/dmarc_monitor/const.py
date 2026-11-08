@@ -63,6 +63,9 @@ DEFAULT_POLICY = "reject"
 DEFAULT_SCAN_INTERVAL = 60
 MIN_SCAN_INTERVAL = 5
 MAX_SCAN_INTERVAL = 24 * 60
+# Minutes until the next attempt after Stalwart was unreachable, e.g. while
+# the mail server reboots; the fetch interval applies again after a success.
+RETRY_INTERVAL = 5
 # Google does not verify Ed25519 signatures (RFC 8463) and reports them as
 # "fail". Selectors carry the key type in their name; Stalwart rotates the
 # keys, so the date part changes and only a pattern stays valid.

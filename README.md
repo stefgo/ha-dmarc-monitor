@@ -105,7 +105,7 @@ One entry per domain; several domains on the same server are several entries.
 | Own sending servers | address of the server | Sources that count as yours (D1/D3) instead of foreign (D2) |
 | Log Notifier channel | `alarm` | Where messages are posted |
 | Expected policy `p` / `sp` | from the newest report | D4 compares against these |
-| Fetch interval | 60 min | Reports arrive once a day per reporter |
+| Fetch interval | 60 min | Reports arrive once a day per reporter; after a failed fetch the next try follows in 5 min |
 | DKIM exceptions | `google.com *ed25519*` | One per line: reporter pattern and selector pattern |
 | Foreign sources from | 1 message | D2 threshold |
 | Watched reporters | `google.com` | R1; empty turns it off |
