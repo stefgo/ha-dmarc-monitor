@@ -1,5 +1,36 @@
 # Changelog
 
+## [1.0.1](https://github.com/stefgo/ha-dmarc-monitor/compare/v1.0.0...v1.0.1) (2026-11-08)
+
+### Fetch now
+
+Each domain has a new **Fetch now** button (`button.example_org_refresh` for
+example.org). It fetches the reports of that domain at once, from the device
+page or a dashboard, and stays usable while Stalwart is unreachable, which is
+when you need it. The service `dmarc_monitor.refresh` still fetches all domains.
+
+### Back on track faster after an outage
+
+- When Stalwart cannot be reached, the next attempt now follows after 5
+  minutes instead of a full fetch interval (60 minutes by default). After a
+  mail server reboot the integration leaves `cannot_connect` within minutes;
+  the configured interval applies again after the next success.
+- The calls now always go to the URL you configured. Stalwart advertises its
+  public hostname in the JMAP session, and following it sent the calls
+  through the external proxy even when the internal address was configured,
+  so a proxy outage made Stalwart look unreachable.
+
+Nothing to do when upgrading.
+
+### Features
+
+* **button:** add a "Fetch now" button per domain ([712a9b6](https://github.com/stefgo/ha-dmarc-monitor/commit/712a9b69e6fcd55e537b0ca26e18a3b939fe4375))
+
+### Bug Fixes
+
+* **coordinator:** retry after 5 minutes when Stalwart is unreachable ([dc0fca5](https://github.com/stefgo/ha-dmarc-monitor/commit/dc0fca55049e591d4ff5b41c1ce7f6142624bfa0))
+* **stalwart:** send JMAP calls to the configured URL, not the session's host ([cb598f1](https://github.com/stefgo/ha-dmarc-monitor/commit/cb598f10021b1a6748742ddce4499a91b18e3898))
+
 ## 1.0.0 (2026-11-02)
 
 ### First release
