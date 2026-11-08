@@ -126,8 +126,9 @@ One device per domain. The entity IDs are derived from the domain, so
 | `sensor.example_org_tls_failed_sessions` | failed TLS sessions, last 7 days |
 | `sensor.example_org_last_report` | time the newest report arrived |
 | `sensor.example_org_api_status` | `ok`, `auth_failed` or `cannot_connect` (diagnostic) |
+| `button.example_org_refresh` | fetches the reports of this domain now; stays usable while Stalwart is unreachable |
 
-The service `dmarc_monitor.refresh` fetches the reports now.
+The service `dmarc_monitor.refresh` fetches the reports of all domains now.
 
 ## Messages
 

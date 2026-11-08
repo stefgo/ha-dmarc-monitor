@@ -20,7 +20,7 @@ from .coordinator import DmarcMonitorConfigEntry, DmarcMonitorCoordinator
 from .services import async_setup_services
 from .stalwart import StalwartClient
 
-PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.SENSOR]
+PLATFORMS: list[Platform] = [Platform.BINARY_SENSOR, Platform.BUTTON, Platform.SENSOR]
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
 

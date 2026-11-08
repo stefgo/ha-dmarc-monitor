@@ -82,6 +82,11 @@
         "name": "Mail-Problem"
       }
     },
+    "button": {
+      "refresh": {
+        "name": "Jetzt abrufen"
+      }
+    },
     "sensor": {
       "dmarc_pass_rate": {
         "name": "DMARC-Erfolgsquote"

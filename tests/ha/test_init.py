@@ -145,6 +145,24 @@ async def test_unreachable_stalwart_is_retried_after_five_minutes(
     assert hass.states.get("sensor.example_org_api_status").state == "ok"
 
 
+async def test_refresh_button(hass: HomeAssistant, setup_entry, stalwart):
+    stalwart.unreachable = True
+    await setup_entry.runtime_data.async_refresh()
+    assert hass.states.get("button.example_org_refresh").state != "unavailable"
+
+    stalwart.unreachable = False
+    stalwart.fetched.clear()
+    stalwart.add(OBJECT_DMARC, spoofed_report())
+    await hass.services.async_call(
+        "button",
+        "press",
+        {"entity_id": "button.example_org_refresh"},
+        blocking=True,
+    )
+    assert stalwart.fetched == ["d3"]
+    assert hass.states.get("sensor.example_org_api_status").state == "ok"
+
+
 async def test_unload(hass: HomeAssistant, setup_entry):
     assert await hass.config_entries.async_unload(setup_entry.entry_id)
     assert setup_entry.state is ConfigEntryState.NOT_LOADED

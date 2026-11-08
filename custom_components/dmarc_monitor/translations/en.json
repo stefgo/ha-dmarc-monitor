@@ -82,6 +82,11 @@
         "name": "Mail problem"
       }
     },
+    "button": {
+      "refresh": {
+        "name": "Fetch now"
+      }
+    },
     "sensor": {
       "dmarc_pass_rate": {
         "name": "DMARC pass rate"
